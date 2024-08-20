@@ -20,16 +20,22 @@ git fetch || exit 1
 
 FULL_SHA1=`git log $SHORT_SHA1 -1 --pretty=format:"%H"`
 
+RELEASE_URL="https://github.com/ardera/flutter-ci/releases/download/engine%2F${FULL_SHA1}/engine-x64-generic-release.tar.xz"
+DEBUG_URL="https://github.com/ardera/flutter-ci/releases/download/engine%2F${FULL_SHA1}/engine-x64-generic-debug.tar.xz"
+
 flutter --version
 echo "Engine sha1: $FULL_SHA1"
-echo "Release URL: https://github.com/ardera/flutter-ci/releases/download/engine%2F${FULL_SHA1}/engine-x64-generic-release.tar.xz"
-echo "Debug URL  : https://github.com/ardera/flutter-ci/releases/download/engine%2F${FULL_SHA1}/engine-x64-generic-debug.tar.xz"
+echo "Release URL: ${RELEASE_URL}"
+echo "Debug URL  : ${DEBUG_URL}"
 
 rm -rf $FLUTTER_ENGINE_FOLDER &> /dev/null
 mkdir $FLUTTER_ENGINE_FOLDER && cd $FLUTTER_ENGINE_FOLDER && \
-echo FULL_SHA1 > engine.version && \
+echo $FULL_SHA1 > engine.version && \
+echo $DEBUG_URL >> engine.version && \
+echo $RELEASE_URL >> engine.version && \
 mkdir dbg rel && \
-cd dbg && wget https://github.com/ardera/flutter-ci/releases/download/engine%2F${FULL_SHA1}/engine-x64-generic-debug.tar.xz && tar xvf engine-x64-generic-debug.tar.xz && \
-cd ../rel && wget https://github.com/ardera/flutter-ci/releases/download/engine%2F${FULL_SHA1}/engine-x64-generic-release.tar.xz && tar xvf engine-x64-generic-release.tar.xz && \
+cd dbg && wget $DEBUG_URL && tar xvf engine-x64-generic-debug.tar.xz && \
+cd ../rel && wget $RELEASE_URL && tar xvf engine-x64-generic-release.tar.xz && \
 cd .. && cp ${FLUTTER_ENGINE_SOURCE}/shell/platform/embedder/embedder.h flutter_embedder.h && \
-rm dbg/engine-x64-generic-debug.tar.xz && rm rel/engine-x64-generic-release.tar.xz
+rm dbg/engine-x64-generic-debug.tar.xz && rm rel/engine-x64-generic-release.tar.xz && \
+echo "Installed to ${FLUTTER_ENGINE_FOLDER}"
